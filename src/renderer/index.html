@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+    <meta charset="UTF-8">
+    <!-- Content Security Policy για την ασφάλεια της Electron εφαρμογής -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self' data:;">
+    <title>My Tree Application</title>
+    <link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+    <h1>My Tree Application</h1>
+
+    <!-- Κουμπιά Ελέγχου της Εφαρμογής -->
+    <div class="controls">
+        <button id="export-pdf-btn">Export PDF</button>
+        <button id="clear-all-btn">Clear All Data</button>
+        <span id="export-status" style="display: none;"></span>
+    </div>
+
+    <!-- Κυρίως Περιοχή Εφαρμογής -->
+    <div id="app-container">
+        <div id="tree-container">
+            <!-- Εδώ σχεδιάζεται το δέντρο με τη χρήση D3.js -->
+            <svg id="tree-svg"></svg>
+        </div>
+        <!-- Κρυφό πεδίο κειμένου για τη μετονομασία του Root κόμβου -->
+        <input type="text" id="root-rename-input" style="display: none;" />
+    </div>
+
+    <!-- Scripts -->
+    <!-- Φόρτωση της βιβλιοθήκης D3.js από το επίπεδο της ρίζας του έργου -->
+    <script src="../../node_modules/d3/dist/d3.min.js"></script>
+    
+    <!-- Φόρτωση του κεντρικού ενορχηστρωτή ως ES Module -->
+    <script type="module" src="./js/index.js"></script>
+</body>
+</html>

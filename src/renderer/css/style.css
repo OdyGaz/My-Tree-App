@@ -1,0 +1,389 @@
+:root {
+    /* Χρωματική Παλέτα */
+    --color-dark-purple: #413c58;
+    --color-teal-blue: #a3c4bc;
+    --color-pale-green: #bfd7b5;
+    --color-light-cream: #f1f3f5;
+
+    /* Μεταβλητές Διεπαφής (UI) */
+    --app-bg: var(--color-light-cream);
+    --text-color: var(--color-dark-purple);
+    --node-fill: var(--color-teal-blue);
+    --node-stroke: var(--color-dark-purple);
+    --node-root-fill: var(--color-pale-green);
+    --link-color: var(--color-teal-blue);
+    --button-bg: var(--color-pale-green);
+    --button-text: var(--color-dark-purple);
+    --button-hover: var(--color-teal-blue);
+    
+    /* Χρώματα Κουμπιών Διαγραφής (Danger) */
+    --button-danger-bg: #f8d7da;
+    --button-danger-text: #721c24;
+    --button-danger-border: #f5c6cb;
+    --button-danger-hover: #f1b0b7;
+    
+    /* Αναδυόμενα Παράθυρα (Popups) & Inputs */
+    --popup-bg: rgba(241, 243, 245, 0.98);
+    --popup-border: var(--color-teal-blue);
+    --input-border: var(--color-teal-blue);
+    --file-link-color: #0056b3;
+    --file-link-hover: #007bff;
+
+    /* Διαστάσεις Δέντρου (D3) */
+    --node-radius: 12px;
+    --vertical-spacing: 160px;
+    --horizontal-node-separation: 60px;
+}
+
+body {
+    /* Χρήση εγγενούς γραμματοσειράς του συστήματος για native αίσθηση */
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--app-bg);
+    color: var(--text-color);
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+h1 {
+    text-align: center;
+    color: var(--text-color);
+    margin-top: 0;
+    margin-bottom: 15px;
+    flex-shrink: 0;
+    font-size: 1.8rem;
+}
+
+.controls {
+    text-align: center;
+    margin-bottom: 15px;
+    flex-shrink: 0;
+}
+
+.controls button {
+    padding: 8px 16px;
+    margin: 0 5px;
+    background-color: var(--button-bg);
+    color: var(--button-text);
+    border: 1px solid var(--node-stroke);
+    border-radius: 4px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.1s ease;
+}
+
+.controls button:hover {
+    background-color: var(--button-hover);
+    border-color: var(--color-dark-purple);
+}
+
+.controls button:active {
+    transform: scale(0.98);
+}
+
+.controls button:disabled {
+    background-color: #ccc;
+    border-color: #aaa;
+    color: #888;
+    cursor: not-allowed;
+    transform: none;
+}
+
+#export-status {
+    margin-left: 10px;
+    font-style: italic;
+    font-size: 0.9rem;
+}
+
+#app-container {
+    flex-grow: 1;
+    position: relative;
+    display: flex;
+    overflow: hidden;
+}
+
+#tree-container {
+    flex-grow: 1;
+    overflow: auto;
+    border: 1px solid var(--node-stroke);
+    border-radius: 6px;
+    background-color: white;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    position: relative;
+}
+
+#tree-svg {
+    display: block;
+}
+
+/* --- Στυλ Σχεδίασης D3.js --- */
+
+.node circle {
+    fill: var(--node-fill);
+    stroke: var(--node-stroke);
+    stroke-width: 1.5px;
+    cursor: pointer;
+    transition: fill 0.2s ease, stroke-width 0.2s ease;
+}
+
+/* Οπτική ανταπόκριση κατά το πέρασμα του ποντικιού πάνω από τους κόμβους */
+.node circle:hover {
+    stroke-width: 2.5px;
+    fill: var(--button-hover);
+}
+
+.node.node-root circle {
+     fill: var(--node-root-fill);
+}
+
+.node.node-root circle:hover {
+    fill: var(--button-bg);
+}
+
+.node text {
+    font-size: 12px;
+    font-family: inherit;
+    fill: var(--text-color);
+    text-anchor: middle;
+    dominant-baseline: central;
+    transform: translateY(calc(var(--node-radius) + 12px));
+    pointer-events: none;
+    user-select: none;
+}
+
+.node text.root-name {
+     font-weight: bold;
+     cursor: text;
+     pointer-events: auto;
+}
+
+.link {
+    fill: none;
+    stroke: var(--link-color);
+    stroke-width: 2px;
+    opacity: 0.7;
+}
+
+/* --- Αναδυόμενο Μενού (Popup) Κόμβων --- */
+
+.node-actions {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background: var(--popup-bg);
+    padding: 15px;
+    border: 1px solid var(--popup-border);
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    font-size: 12px;
+    opacity: 0;
+    visibility: hidden;
+    transform: scale(0.95);
+    transition: opacity 0.15s ease, visibility 0.15s ease, transform 0.15s ease;
+    z-index: 10;
+    min-width: 240px;
+    max-width: 300px;
+}
+
+.node-actions.visible {
+    opacity: 1;
+    visibility: visible;
+    transform: scale(1);
+}
+
+.node-actions label {
+    font-weight: bold;
+    display: block;
+    font-size: 11px;
+    color: var(--text-color);
+    line-height: normal;
+    margin-bottom: 4px;
+}
+
+.node-actions input[type="text"],
+.node-actions textarea {
+    padding: 6px 8px;
+    border: 1px solid var(--input-border);
+    border-radius: 4px;
+    font-size: 12px;
+    width: 100%;
+    box-sizing: border-box;
+    background-color: white;
+    color: var(--text-color);
+    font-family: inherit;
+}
+
+/* Εφέ εστίασης στα πεδία κειμένου */
+.node-actions input[type="text"]:focus,
+.node-actions textarea:focus {
+    outline: none;
+    border-color: var(--color-dark-purple);
+    box-shadow: 0 0 0 2px rgba(65, 60, 88, 0.1);
+}
+
+.node-actions textarea {
+    min-height: 50px;
+    resize: vertical;
+}
+
+.node-actions .action-buttons {
+     display: flex;
+     flex-wrap: wrap;
+     justify-content: space-between;
+     gap: 8px;
+     margin-top: 10px;
+     border-top: 1px solid var(--popup-border);
+     padding-top: 10px;
+}
+
+.node-actions button {
+    padding: 6px 12px;
+    background-color: var(--button-bg);
+    color: var(--button-text);
+    border: 1px solid var(--node-stroke);
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 11px;
+    font-family: inherit;
+    transition: background-color 0.2s ease;
+    flex-grow: 1;
+}
+
+.node-actions button:hover {
+     background-color: var(--button-hover);
+}
+
+.node-actions button.delete-button {
+    background-color: var(--button-danger-bg);
+    color: var(--button-danger-text);
+    border-color: var(--button-danger-border);
+}
+
+.node-actions button.delete-button:hover {
+    background-color: var(--button-danger-hover);
+}
+
+.node-actions button.delete-button:disabled {
+     background-color: #e9ecef;
+     color: #adb5bd;
+     border-color: #ced4da;
+     cursor: not-allowed;
+}
+
+.node-actions .files-section {
+    margin-top: 8px;
+    border-top: 1px dashed var(--popup-border);
+    padding-top: 8px;
+}
+
+.node-actions .files-list {
+    list-style: none;
+    padding: 0;
+    margin: 5px 0 0 0;
+    max-height: 100px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--node-fill) var(--app-bg);
+}
+
+/* Προσαρμογή Scrollbar για Webkit Browsers */
+.node-actions .files-list::-webkit-scrollbar {
+    width: 6px;
+}
+.node-actions .files-list::-webkit-scrollbar-track {
+    background: var(--app-bg);
+    border-radius: 3px;
+}
+.node-actions .files-list::-webkit-scrollbar-thumb {
+    background-color: var(--node-fill);
+    border-radius: 3px;
+}
+
+.node-actions .files-list li {
+    margin-bottom: 4px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.node-actions .files-list span {
+    cursor: pointer;
+    color: var(--file-link-color);
+    text-decoration: underline;
+    font-size: 11px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 180px;
+    display: inline-block;
+}
+
+.node-actions .files-list span:hover {
+    color: var(--file-link-hover);
+}
+
+/* Πλαίσιο Μετονομασίας του Root Κόμβου */
+#root-rename-input {
+    position: absolute;
+    z-index: 20;
+    padding: 5px;
+    border: 1px solid var(--node-stroke);
+    border-radius: 4px;
+    background-color: white;
+    font-size: 12px;
+    font-weight: bold;
+    text-align: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    font-family: inherit;
+}
+
+/* --- Κανόνες Εκτύπωσης / Εξαγωγής PDF --- */
+@media print {
+    body {
+        padding: 0;
+        margin: 0;
+        background-color: white;
+        height: auto;
+        overflow: visible;
+    }
+  
+    body > h1,
+    body > .controls {
+        display: none; /* Απόκρυψη κουμπιών και τίτλου στο PDF */
+    }
+  
+    #app-container {
+        height: auto !important;
+        overflow: visible !important;
+        border: none;
+        padding: 0;
+        display: block;
+    }
+  
+    #tree-container {
+        border: none;
+        overflow: visible !important;
+        height: auto !important;
+        width: auto !important;
+        padding: 0;
+        display: block;
+        justify-content: initial;
+        align-items: initial;
+    }
+  
+    #tree-svg {
+        margin: 0 !important;
+        display: block !important;
+    }
+  
+    .node-actions, #root-rename-input {
+        display: none !important; /* Απόκρυψη αναδυόμενων φορμών κατά την εξαγωγή */
+    }
+}

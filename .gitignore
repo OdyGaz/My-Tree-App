@@ -1,0 +1,13 @@
+# Dependencies
+node_modules/
+
+# Build outputs (παραγόμενα εκτελέσιμα)
+dist/
+
+# Τοπικά αρχεία ρυθμίσεων
+.env
+.env.local
+
+# Αρχεία λειτουργικού συστήματος
+.DS_Store
+Thumbs.db
